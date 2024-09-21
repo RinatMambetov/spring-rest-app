@@ -30,4 +30,8 @@ public class PersonsService {
         return person.orElseThrow(() -> new PersonNotFoundException(id));
     }
 
+    @Transactional
+    public void save(Person person) {
+        personsRepository.save(person);
+    }
 }
