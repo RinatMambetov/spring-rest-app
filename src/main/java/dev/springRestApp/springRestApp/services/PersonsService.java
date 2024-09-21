@@ -2,6 +2,7 @@ package dev.springRestApp.springRestApp.services;
 
 import dev.springRestApp.springRestApp.models.Person;
 import dev.springRestApp.springRestApp.repositories.PersonsRepository;
+import dev.springRestApp.springRestApp.util.PersonNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +27,7 @@ public class PersonsService {
 
     public Person findById(int id) {
         Optional<Person> person = personsRepository.findById(id);
-        if (person.isPresent()) {
-            return person.get();
-        } else {
-            throw new IllegalArgumentException("Person with id " + id + " not found");
-        }
+        return person.orElseThrow(() -> new PersonNotFoundException(id));
     }
 
 }
