@@ -10,3 +10,7 @@ insert into person(name, age, email) values
 ('John', 20, 'john@gmail.com'),
 ('Mary', 25,'mary@gmail.com')
 
+alter table person
+    add column created_at timestamp,
+    add column updated_at timestamp,
+    add column created_who varchar

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "person")
 @NoArgsConstructor
@@ -35,6 +37,16 @@ public class Person {
     @NotEmpty(message = "Email cannot be empty")
     @Email
     private String email;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "created_who")
+    @NotEmpty(message = "Created_who cannot be empty")
+    private String createdWho;
 
     public Person(String name, int age, String email) {
         this.name = name;

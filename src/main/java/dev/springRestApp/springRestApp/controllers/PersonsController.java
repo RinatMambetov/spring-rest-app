@@ -1,11 +1,13 @@
 package dev.springRestApp.springRestApp.controllers;
 
+import dev.springRestApp.springRestApp.dto.PersonDTO;
 import dev.springRestApp.springRestApp.models.Person;
 import dev.springRestApp.springRestApp.services.PersonsService;
 import dev.springRestApp.springRestApp.util.PersonErrorResponse;
 import dev.springRestApp.springRestApp.util.PersonNotCreatedException;
 import dev.springRestApp.springRestApp.util.PersonNotFoundException;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +22,27 @@ import java.util.List;
 public class PersonsController {
 
     private final PersonsService personsService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public PersonsController(PersonsService personsService) {
+    public PersonsController(PersonsService personsService, ModelMapper modelMapper) {
         this.personsService = personsService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping()
-    public List<Person> getPersons() {
-        return personsService.findAll(); // Jackson convert objects to json
+    public List<PersonDTO> getPersons() {
+        return personsService.findAll().stream().map(this::convertToPersonDTO).toList();
+        // Jackson convert objects to json
     }
 
     @GetMapping("/{id}")
-    public Person getPersonById(@PathVariable("id") int id) {
-        return personsService.findById(id);
+    public PersonDTO getPersonById(@PathVariable("id") int id) {
+        return convertToPersonDTO(personsService.findById(id));
     }
 
     @PostMapping()
-    public ResponseEntity<HttpStatus> create(@RequestBody @Valid Person person,
+    public ResponseEntity<HttpStatus> create(@RequestBody @Valid PersonDTO personDTO,
                                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             StringBuilder errorMsg = new StringBuilder();
@@ -50,8 +55,24 @@ public class PersonsController {
             throw new PersonNotCreatedException(errorMsg.toString());
         }
 
-        personsService.save(person);
+        personsService.save(convertToPerson(personDTO));
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    private Person convertToPerson(PersonDTO personDTO) {
+//        Person person = new Person();
+//        person.setName(personDTO.getName());
+//        person.setAge(personDTO.getAge());
+//        person.setEmail(personDTO.getEmail());
+//        return person;
+
+//        ModelMapper modelMapper = new ModelMapper();
+
+        return modelMapper.map(personDTO, Person.class);
+    }
+
+    private PersonDTO convertToPersonDTO(Person person) {
+        return modelMapper.map(person, PersonDTO.class);
     }
 
     @ExceptionHandler
